@@ -14,19 +14,36 @@ HEADERS = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.
 # =============================
 # 1️⃣ Webhook Trigger - PR opened
 # =============================
+@app.get("/webhook")
+async def webhook_verify():
+    return {"status": "webhook GET OK"}
+
+
 @app.post("/webhook")
-async def github_webhook(request: Request):
-    payload = await request.json()
+async def webhook(request: Request):
+    raw_body = await request.body()
+    print("\n RAW PAYLOAD:", raw_body.decode())
+
+    try:
+        payload = await request.json()
+    except:
+        print(" Could not parse JSON")
+        return {"status": "invalid json"}
+
+    print(" Parsed JSON:", payload)
+
     action = payload.get("action")
-    
-    # Trigger only when PR is opened or synchronized
     if action not in ["opened", "synchronize"]:
-        return {"message": "Ignored action."}
+        print(f"ℹ Ignored action: {action}")
+        return {"status": "ignored"}
 
     pr = payload["pull_request"]
     repo_full_name = payload["repository"]["full_name"]
     pr_number = pr["number"]
     diff_url = pr["diff_url"]
+
+    print(f"\n PR Triggered for {repo_full_name} #{pr_number}")
+    print(" Diff URL:", diff_url)
 
     print(f"🚀 PR Triggered for {repo_full_name} #{pr_number}")
 
