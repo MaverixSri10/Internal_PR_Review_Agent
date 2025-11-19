@@ -22,6 +22,7 @@ Post AI Review Comments on PR (GitHub Service → Posts comments to PR)
 ### Setup Instructions
 1️. Clone the Repository
 API Created and updated
+Name changed for model
 
 
 
