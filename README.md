@@ -21,9 +21,8 @@ Post AI Review Comments on PR (GitHub Service → Posts comments to PR)
 
 ### Setup Instructions
 1️. Clone the Repository
-
-
-
+New Code Snippet created
+24.11.2025
 
 
 
