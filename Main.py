@@ -129,7 +129,10 @@ def create_review_prompt(diff, semgrep_results, pip_audit_results):
 
 # 5️ LLM Integration (OpenAI)
 
-def generate_ai_review(prompt: str):
+import os
+import requests
+
+def generate_ai_review(prompt: str, model: str = "mistralai/mistral-small-3.2-24b-instruct:free"):
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return "ERROR: Missing OPENROUTER_API_KEY in .env"
@@ -144,24 +147,39 @@ def generate_ai_review(prompt: str):
     }
 
     payload = {
-        "model": "mistralai/mistral-small-3.2-24b-instruct:free",
-        "messages": [
-            {"role": "user", "content": prompt}
-        ]
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 2048,
+        "temperature": 0.2
     }
 
-    response = requests.post(url, headers=headers, json=payload)
+    try:
+        response = requests.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=20  # ensures FastAPI will not freeze
+        )
+    except requests.exceptions.RequestException as e:
+        return f"NETWORK ERROR: {str(e)}"
 
-    # If LLM fails, return error string instead of crashing FastAPI
     if response.status_code != 200:
         return f"LLM ERROR: {response.status_code} - {response.text}"
 
     data = response.json()
 
-    if "choices" not in data:
+    # Validate structure
+    message = (
+        data.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content")
+    )
+
+    if not message:
         return f"INVALID LLM RESPONSE: {data}"
 
-    return data["choices"][0]["message"]["content"]
+    return message
+
 
 
 
