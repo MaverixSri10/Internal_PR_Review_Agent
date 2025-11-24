@@ -127,10 +127,10 @@ def create_review_prompt(diff, semgrep_results, pip_audit_results):
     return prompt
 
 
-# 5️ LLM Integration (OpenAI)
+# 5️ LLM Integration (Openrouter)
 
 def generate_ai_review(prompt: str):
-    api_key = os.getenv("OPENROUTER_API_KEY")
+    api_key = os.getenv("OPEN_ROUTER_KEY")
     if not api_key:
         return "ERROR: Missing OPENROUTER_API_KEY in .env"
 
@@ -144,7 +144,7 @@ def generate_ai_review(prompt: str):
     }
 
     payload = {
-        "model": "mistralai/mistral-small-3.2-24b-instruct:free",
+        "model": "mistralai/mistral-small-3.1-24b-instruct:free",
         "messages": [
             {"role": "user", "content": prompt}
         ]
